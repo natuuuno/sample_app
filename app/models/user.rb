@@ -87,7 +87,7 @@ class User < ApplicationRecord
 
   # パスワード再設定の期限が切れている場合はtrueを返す
   def password_reset_expired?
-    reset_sent_at < 2.hours.ago  # reset_sent_at(メールを送信した時間)の2時間後より早い
+    reset_sent_at < 2.hours.ago  # メールを送信した時間が現在時刻の２時間前よりはやい
   end
 
 private
