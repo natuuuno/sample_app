@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  has_many :microposts, dependent: :destroy # micropostと関連づけ,userが削除された際micropostも削除される
   attr_accessor :remember_token, :activation_token, :reset_token #remember_token,activation_token,reset_token属性を作成
   before_save :downcase_email
   before_create :create_activation_digest
@@ -17,34 +18,10 @@ class User < ApplicationRecord
     BCrypt::Password.create(string, cost: cost)
   end
 
-  # def self.digest(string) #ここでのselfはUserモデルではなくUserクラスを指す
-  #   cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST :
-  #              BCrypt::Engine.cost
-  #   BCrypt::Password.create(string, cost: cost)
-  # end
-
   # ランダムなトークンを返す
   def User.new_token
     SecureRandom.urlsafe_base64
   end
-
-  # def self.new_token
-  #   SecureRandom.urlsafe_base64
-  # end
-
-  # class << self
-  #   # 渡された文字列のハッシュ値を返す
-  #   def digest(string)
-  #     cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST :
-  #                BCrypt::Engine.cost
-  #     BCrypt::Password.create(string, cost: cost)
-  #   end
-  #
-  #   #ランダムなトークンを返す
-  #   def new_token
-  #     SecureRandom.urlsafe_base64
-  #   end
-  # end
 
   # 永続セッションのためにユーザーをDBに記憶させる
   def remember
@@ -88,6 +65,11 @@ class User < ApplicationRecord
   # パスワード再設定の期限が切れている場合はtrueを返す
   def password_reset_expired?
     reset_sent_at < 2.hours.ago  # メールを送信した時間が現在時刻の２時間前よりはやい
+  end
+
+  # 試作feedの定義
+  def feed
+    Micropost.where("user_id = ?", id)
   end
 
 private
